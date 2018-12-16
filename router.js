@@ -11,7 +11,9 @@ const router = express.Router();
 
 
 // 3. 监听端口 实现函数
-router.get("/signin", c_user.showSignin);
+router
+    .get("/signin", c_user.showSignin)
+    .post("/signin", c_user.handleSignin);
 
 
 // 4. 导出router

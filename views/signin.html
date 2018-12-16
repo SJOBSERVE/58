@@ -39,6 +39,35 @@
     </div>
     <script src="/node_modules/jquery/dist/jquery.js"></script>
     <script>
+        // 1. 找到表单所在文件 signin.html
+        // 2. 取消提交行为
+        // 3. 获取表单数据
+        // 4. ajax post
+
+        $('#signin_form').on("submit", function(e) {
+            // 取消默认行为
+            e.preventDefault();
+            // 获取表单数据
+            var formdata = $(this).serialize();
+            // console.log(formdata);
+
+            // 发送ajax
+            // $.ajax()
+            $.post("/signin", formdata, function(data) {
+                console.log(data);
+                // 如果data.code===200 登录
+                if (data.code === 200) {
+                    // console.log(data.msg);
+                    // 来到列表 /
+                    window.location.href = "/";
+
+
+                } else {
+                    alert(data.msg);
+                }
+
+            });
+        });
     </script>
 </body>
 
