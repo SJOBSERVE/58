@@ -17,6 +17,7 @@ app.engine('html', require('express-art-template'));
 app.use(bodyParser.urlencoded({
     extended: false
 }));
+
 app.use(bodyParser.json());
 
 // 3. 挂载路由
