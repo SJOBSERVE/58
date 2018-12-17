@@ -4,6 +4,8 @@
 const express = require('express');
 const router = require('./router');
 const bodyParser = require('body-parser');
+const session = require('express-session');
+
 
 // 2. 配置
 const app = express();
@@ -19,6 +21,12 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.use(bodyParser.json());
+// 配置express-session -> req.session
+app.use(session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true
+}));
 
 // 3. 挂载路由
 app.use(router);

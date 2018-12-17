@@ -93,23 +93,145 @@
 
 #### 01-项目-登录-优化-提取模型-m_user.js
 
+> 目的:把 c_user 中数据库操作的代码提取到一个 m_user 模块中
+> m_user.js 目的: 专门处理用户的相关的数据库操作的部分并且返回结果
+> c_user 在编码过程中 发现用数据,让 m_user 去找数据 c_user 使用该结果
+> `m_user.js`
+
+```js
+// 职责/作用: 专门处理数据库操作的代码并且返回结果
+
+// 1. 导包
+const mysql = require('mysql')
+// 2. 配置
+const connection = mysql.createConnection({
+  // 主机
+  host: 'localhost',
+  // 用户名
+  user: 'root',
+  // 密码
+  password: '123456',
+  // 数据库名字
+  database: 'news58'
+})
+
+// 3. 开启连接
+connection.connect()
+// 数据库操作的结果 err data
+
+// 查询邮箱
+// 目的(场景): 在c_user(checkEmail方法外部)文件中 使用checkEamil内部异步操作query里面的结果
+//
+exports.checkEmail = (email, callback) => {
+  const sqlstr = 'SELECT *FROM `users` WHERE email=?'
+
+  connection.query(sqlstr, email, (err, data) => {
+    // 在有异步操作结果的位置 通过调函数的方式 传递结果
+    if (err) {
+      return callback(err)
+    }
+    callback(null, data)
+  })
+}
+```
+
+`c_user.js`
+
+```js
+const M_user = require('../models/m_user')
+M_user.checkEmail(body.email, (err, data) => {
+  if (err) {
+    throw err
+  }
+  // console.log(data);
+  // 如果邮箱没有 data=[]
+  if (data.length === 0) {
+    // console.log("邮箱不存在");
+    return res.send({
+      code: 1,
+      msg: '邮箱不存在'
+    })
+  }
+  // console.log(data);
+
+  // 3. 验证该邮箱对应数据的密码是否正确
+  // 判断数据库的密码和body.password
+  if (data[0].password !== body.password) {
+    return res.send({
+      code: 2,
+      msg: '密码错误'
+    })
+  }
+
+  // 4. 返回200状态码
+  res.send({
+    code: 200,
+    msg: '可以登录啦!!!好开心'
+  })
+})
+```
+
 #### 02-项目-登录-优化-提取-db_config
+
+> 把 m_user 中的 mysql 导包/配置提取为一个单独的 js 模块
+> config/db_config.js
 
 #### 03-项目-MVC-各司其职
 
+> MVC 设计模式(开发套路,软件架构模式)
+> M: Model 模型 : 操作数据库
+> V: View 视图 : 标签+样式+客户端请求+模板引擎语法
+> C: Controller 控制器: 实现大量业务逻辑(要视图/要数据) 宏观调控
+
 #### 04-项目-文章-文章列表-渲染列表页
+
+1. V signin.html 客户端重定向 window.location.href = "/"
+2. router 增加请求 -> 找 C 中的方法
+3. C c_topic.js -> 实现方法 showTopicList
+4. C c_topic showTopicList res.render("index.html")
+5. V 导入 UI 素材 index.html
 
 #### 05-项目-文章-文章列表-数据处理
 
+> 该列表数据要来源于数据库
+
+1. M m_topic 获取所有文章数据 findAllTopics
+2. C 让 M 去拿数据 C 把数据 data 给 V render(V,{topics:M 的结果})
+3. V {{each topics}} {{$value.title}} {{/each}}
+
 #### 06-项目-文章-文章列表-express-session-保存用户信息
+
+> 不同页面使用相同的数据而且 服务端 -> session
+> express-session 包 让 req 多个 session 属性 类比 req.body 和 res.render()
+
+1. 安装
+2. app.js 导入+配置
+3. C c_user 在登录成功时 把正确的用户数据 data[0]进行存储
+   > req.session.user = data[0];
 
 #### 07-项目-文章-文章列表-登录和注册的显示与隐藏
 
+> header.html 如果登录 显示前面的列表+发布按钮 否则 显示登录和注册按钮
+
+1. V header.html {{if user}}
+2. C c_topic res.render("index.html",{topics:data,user:req.session.user})
+   > 先登录 -> 来到列表页 -> 手动删除了 session->刷新
+
+> 问题: 每次重新启动服务->之前的 session 数据 就没了! -> 待调
+
 #### 08-项目-文章-文章列表-显示当前用户名
+
+> 在列表页的头部 header.html 显示当前登录用户的用户名 {{user.nickname}}
 
 #### 09-项目-文章-文章列表-发布新文章-渲染页面
 
+1. V header.html a 标签 href ="/topic/create"
+2. router.js 增加监听 找 C 的方法 createTopic
+3. C c_topic 实现方法 render("topic/create.html");
+
 #### 10-项目-文章-文章列表-发布新文章-客户端发送表单请求
+
+> V create.html 客户端发送表单
 
 #### 11-项目-文章-文章列表-发布新文章-服务端处理表单请求
 

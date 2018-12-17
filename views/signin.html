@@ -54,13 +54,13 @@
             // 发送ajax
             // $.ajax()
             $.post("/signin", formdata, function(data) {
+                // data就是服务端返回的响应
                 console.log(data);
                 // 如果data.code===200 登录
                 if (data.code === 200) {
                     // console.log(data.msg);
                     // 来到列表 /
                     window.location.href = "/";
-
 
                 } else {
                     alert(data.msg);
