@@ -55,6 +55,8 @@ exports.handleSignin = (req, res) => {
             // 某个包express-session -> req.session.成员 = 值;
 
             req.session.user = data[0];
+            // 把req.session.user 写入到mysql中
+
             // console.log(req.session.user);
 
 

@@ -5,7 +5,16 @@ const express = require('express');
 const router = require('./router');
 const bodyParser = require('body-parser');
 const session = require('express-session');
+const MySQLStore = require('express-mysql-session')(session);
+var options = {
+    host: 'localhost',
+    port: 3306,
+    user: 'root',
+    password: '123456',
+    database: 'news58'
+};
 
+const sessionStore = new MySQLStore(options);
 
 // 2. 配置
 const app = express();
@@ -22,10 +31,18 @@ app.use(bodyParser.urlencoded({
 
 app.use(bodyParser.json());
 // 配置express-session -> req.session
+// app.use(session({
+//     secret: 'keyboard cat',
+//     resave: false,
+//     saveUninitialized: true
+// }));
+// 配置express-mysql-session
 app.use(session({
-    secret: 'keyboard cat',
+    key: 'session_cookie_name',
+    secret: 'session_cookie_secret',
+    store: sessionStore,
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: false
 }));
 
 // 3. 挂载路由

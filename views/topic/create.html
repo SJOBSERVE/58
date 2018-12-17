@@ -34,9 +34,14 @@
             e.preventDefault();
             var formdata = $(this).serialize();
             $.post("/topic/create", formdata, function(data) {
-                console.log(data);
+                // console.log(data);
+                if (data.code === 200) {
+                    // 列表页
+                    window.location.href = "/";
+
+                }
             });
-        })
+        });
     </script>
 </body>
 

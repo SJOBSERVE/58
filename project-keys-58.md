@@ -205,8 +205,11 @@ M_user.checkEmail(body.email, (err, data) => {
 > express-session 包 让 req 多个 session 属性 类比 req.body 和 res.render()
 
 1. 安装
+
 2. app.js 导入+配置
+
 3. C c_user 在登录成功时 把正确的用户数据 data[0]进行存储
+
    > req.session.user = data[0];
 
 #### 07-项目-文章-文章列表-登录和注册的显示与隐藏
@@ -216,12 +219,12 @@ M_user.checkEmail(body.email, (err, data) => {
 1. V header.html {{if user}}
 2. C c_topic res.render("index.html",{topics:data,user:req.session.user})
    > 先登录 -> 来到列表页 -> 手动删除了 session->刷新
-
-> 问题: 每次重新启动服务->之前的 session 数据 就没了! -> 待调
+   >
+   > 问题: 每次重新启动服务->之前的 session 数据 就没了! -> 待调
 
 #### 08-项目-文章-文章列表-显示当前用户名
 
-> 在列表页的头部 header.html 显示当前登录用户的用户名 {{user.nickname}}
+> 在列表页头部 header.html 显示当前登录用户的用户名 {{user.nickname}}
 
 #### 09-项目-文章-文章列表-发布新文章-渲染页面
 
@@ -235,20 +238,41 @@ M_user.checkEmail(body.email, (err, data) => {
 
 #### 11-项目-文章-文章列表-发布新文章-服务端处理表单请求
 
+1. V create.html 发送 post
+2. router.js 增加请求 找 C c_topic handleCreateTopic
+3. C c_topic 实现 handleCreateTopic
+   1. 获取表单数据 req.body
+   2. 让 M 操作数据库 (添加数据) 返回结果
+   3. 返回成功 200 的响应
+4. M m_topic 增加方法 添加/插入
+
 #### 12-项目-文章-文章列表-发布新文章-客户端处理服务端返回的响应
+
+> 如果 data.code===200 重定向列表页
+> 倒序排列 ORDER BY id DESC
 
 #### 13-项目-文章-文章列表-持久化存储用户信息
 
+> express-session 存的数据 每次重启会消失 -> req.session.数据 -> 持久化存储
+
+> 步骤
+
+1. 在保存 req.sesion 的位置 写入数据库
+2. 在 c_topic res.render(V,{user:操作数据库的结果 req.session.user})
+   > 但是 express-mysql-session 作用:把 express-session 保存的数据 req.session 自动的写入到数据库中
+   > express-mysql-session 的使用
+3. 安装包
+4. app.js 配置包
+5. express-session 也需要导入
+   > 结果 当使用 req.session.user = ?;时 此时,会把该数据放在 mysql 中
+   > 结果 当访问 req.session.user 时, 此时, 会自动查询数据库
+
 #### 14-项目-文章-文章列表-设置话题的-createdAt
+
+> 添加文章之前 body.createdAt = moment().format();
+> 注意 moment 和 node 没关系
 
 #### 15-项目-文章-文章列表-设置话题的创建者-userId
 
-#### 16-项目-文章-文章详情-渲染页面
-
-#### 17-项目-文章-文章详情-动态路由
-
-#### 18-项目-文章-文章详情-处理数据
-
-#### 19-项目-文章-文章详情-处理文章不存在的情况
-
-#### 20-项目-用户-用户退
+> 每个文章的创建者是不一样的 为了区分 需要给文章设置 userId
+> body.userId = req.session.user.id;
